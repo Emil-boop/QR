@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Bibliotheksdepot · QR-Bibliothek{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <p class="eyebrow">Bestandsverwaltung</p>
+  <h1>Bibliotheksdepot</h1>
+  <p>Verwalte Exemplare, Ausleihen und Rückgaben.</p>
+</section>
+
+<section class="stats-grid">
+  <div class="stat-card"><span>Gesamt</span><strong>{{ total }}</strong></div>
+  <div class="stat-card"><span>Verfügbar</span><strong>{{ available }}</strong></div>
+  <div class="stat-card"><span>Ausgeliehen</span><strong>{{ loaned }}</strong></div>
+</section>
+
+{% if books %}
+  <section class="book-grid">
+    {% for book in books %}
+      <article class="book-card">
+        <div class="book-card-top">
+          <span class="pill">Exemplar {{ book["id"] }}</span>
+          <span class="status {{ 'status-loaned' if book['ausgeliehen'] else 'status-available' }}">
+            {{ "Ausgeliehen" if book["ausgeliehen"] else "Vorhanden" }}
+          </span>
+        </div>
+        <h2>{{ book["titel"] }}</h2>
+        <p>ISBN: {{ book["isbn"] }}</p>
+        <p>Regal: {{ book["regalstandort"] or "-" }}</p>
+        {% if book["ausgeliehen"] %}
+          <div class="loan-details">
+            <p>Ausleiher: <strong>{{ book["ausleiher"] or "-" }}</strong></p>
+            <p>Rückgabe: <strong>{{ format_date(book["rueckgabedatum"]) }}</strong></p>
+          </div>
+          <form method="post" action="{{ url_for('return_book', book_id=book['id']) }}">
+            <button class="button button-secondary" type="submit">Zurückgeben</button>
+          </form>
+        {% else %}
+          <form class="inline-form" method="post" action="{{ url_for('loan_book', book_id=book['id']) }}">
+            <label for="borrower-{{ book['id'] }}">Ausleiher</label>
+            <input id="borrower-{{ book['id'] }}" name="ausleiher" maxlength="120" required>
+            <label for="date-{{ book['id'] }}">Rückgabedatum</label>
+            <input id="date-{{ book['id'] }}" name="rueckgabedatum" type="date" required>
+            <button class="button button-primary" type="submit">Ausleihen</button>
+          </form>
+        {% endif %}
+      </article>
+    {% endfor %}
+  </section>
+{% else %}
+  <div class="empty-state">Noch keine Bücher eingetragen. Erstelle zuerst einen QR-Code.</div>
+{% endif %}
+{% endblock %}

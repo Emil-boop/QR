@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}QR-Code erstellen · QR-Bibliothek{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <p class="eyebrow">Neues Buchexemplar</p>
+  <h1>QR-Code erstellen</h1>
+  <p>Der Code enthält die Exemplar-ID und kann später zum Ausleihen oder Zurückgeben gescannt werden.</p>
+</section>
+
+<div class="form-layout">
+  <form class="panel form-panel" method="post">
+    <label for="titel">Buchtitel</label>
+    <input id="titel" name="titel" maxlength="200" required value="{{ request.form.get('titel', '') }}">
+
+    <label for="isbn">ISBN</label>
+    <input id="isbn" name="isbn" maxlength="40" required value="{{ request.form.get('isbn', '') }}">
+
+    <label for="regal">Regal / Standort</label>
+    <input id="regal" name="regal" maxlength="120" required value="{{ request.form.get('regal', '') }}">
+
+    <label for="hintergrund">Hintergrundfarbe des QR-Codes</label>
+    <select id="hintergrund" name="hintergrund">
+      {% for name in backgrounds %}
+        <option value="{{ name }}" {% if request.form.get('hintergrund', 'Weiß') == name %}selected{% endif %}>{{ name }}</option>
+      {% endfor %}
+    </select>
+
+    <button class="button button-primary" type="submit">Bucheintrag und QR-Code erstellen</button>
+  </form>
+
+  {% if created %}
+    <section class="panel result-panel">
+      <p class="eyebrow">Erstellt</p>
+      <h2>{{ created.title }}</h2>
+      <p>Exemplar-ID: <strong>{{ created.book_id }}</strong></p>
+      <img class="qr-preview" src="{{ url_for('qr_file', filename=created.filename) }}" alt="QR-Code für {{ created.title }}">
+      <a class="button button-secondary" href="{{ url_for('qr_file', filename=created.filename) }}" download>QR-Code herunterladen</a>
+    </section>
+  {% else %}
+    <aside class="info-card">
+      <h2>So funktioniert es</h2>
+      <p>Für jedes Exemplar wird ein eigener Datensatz angelegt. Der QR-Code speichert nur die ID; die Buchdaten bleiben in der Bibliotheksdatenbank.</p>
+    </aside>
+  {% endif %}
+</div>
+{% endblock %}

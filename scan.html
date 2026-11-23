@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}QR-Code scannen · QR-Bibliothek{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <p class="eyebrow">Bücher erkennen</p>
+  <h1>QR-Code scannen</h1>
+  <p>Nutze die Kamera, lade ein QR-Bild hoch oder gib den QR-Inhalt selbst ein.</p>
+</section>
+
+<div class="scan-grid">
+  <section class="panel">
+    <h2>Mit der Kamera</h2>
+    <p class="muted">Die Kamera funktioniert im Browser nur über HTTPS oder lokal auf diesem Gerät.</p>
+    <div class="camera-controls">
+      <button class="button button-primary" id="start-camera" type="button">Kamera starten</button>
+      <button class="button button-quiet" id="stop-camera" type="button" disabled>Kamera stoppen</button>
+    </div>
+    <p class="camera-status" id="camera-status" aria-live="polite">Noch nicht gestartet.</p>
+    <video id="camera-video" class="camera-video" autoplay playsinline hidden></video>
+    <form id="camera-scan-form" method="post" action="{{ url_for('scan') }}">
+      <label for="qr-content">QR-Inhalt</label>
+      <input id="qr-content" name="qr_inhalt" maxlength="2000" autocomplete="off" required>
+      <button class="button button-secondary" type="submit">QR-Code auswerten</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>Bild hochladen</h2>
+    <p class="muted">Ein Foto oder Screenshot eines QR-Codes kann direkt ausgelesen werden.</p>
+    <form method="post" action="{{ url_for('scan_image') }}" enctype="multipart/form-data">
+      <label for="bild">Bilddatei</label>
+      <input id="bild" name="bild" type="file" accept="image/*" capture="environment" required>
+      <button class="button button-secondary" type="submit">Bild scannen</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

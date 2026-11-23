@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Büchersuche · QR-Bibliothek{% endblock %}
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">Digitale Bibliotheksverwaltung</p>
+  <h1>Finde Bücher. Scanne QR-Codes. Behalte den Überblick.</h1>
+  <p class="hero-copy">Suche im Bestand oder öffne eine der Bibliotheksfunktionen.</p>
+  <form class="search-form" method="get" action="{{ url_for('index') }}">
+    <label class="sr-only" for="q">Buch suchen</label>
+    <input id="q" name="q" value="{{ query }}" placeholder="Titel, ISBN, Regal oder Exemplar-ID">
+    <button class="button button-primary" type="submit">Suchen</button>
+  </form>
+</section>
+
+<section class="stats-grid" aria-label="Bestandsübersicht">
+  <div class="stat-card"><span>Exemplare</span><strong>{{ total }}</strong></div>
+  <div class="stat-card"><span>Ausgeliehen</span><strong>{{ loaned }}</strong></div>
+  <div class="stat-card"><span>Verfügbar</span><strong>{{ total - loaned }}</strong></div>
+</section>
+
+{% if query %}
+  <section class="section-block">
+    <div class="section-heading">
+      <div><p class="eyebrow">Suchergebnisse</p><h2>„{{ query }}“</h2></div>
+      <a class="text-link" href="{{ url_for('index') }}">Suche zurücksetzen</a>
+    </div>
+    {% if books %}
+      <div class="book-grid">
+        {% for book in books %}
+          <article class="book-card">
+            <div class="book-card-top">
+              <span class="pill">Exemplar {{ book["id"] }}</span>
+              <span class="status {{ 'status-loaned' if book['ausgeliehen'] else 'status-available' }}">
+                {{ "Ausgeliehen" if book["ausgeliehen"] else "Vorhanden" }}
+              </span>
+            </div>
+            <h3>{{ book["titel"] }}</h3>
+            <p>ISBN: {{ book["isbn"] }}</p>
+            <p>Regal: {{ book["regalstandort"] or "-" }}</p>
+            {% if book["ausgeliehen"] %}
+              <p>Ausleiher: {{ book["ausleiher"] or "-" }}</p>
+            {% endif %}
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">Keine passenden Bücher gefunden.</div>
+    {% endif %}
+  </section>
+{% else %}
+  <section class="feature-grid">
+    <a class="feature-card feature-blue" href="{{ url_for('create_qr') }}">
+      <span class="feature-icon">＋</span>
+      <h2>QR-Code erstellen</h2>
+      <p>Buchexemplar eintragen und einen druckbaren Code erzeugen.</p>
+    </a>
+    <a class="feature-card feature-lilac" href="{{ url_for('scan') }}">
+      <span class="feature-icon">⌗</span>
+      <h2>QR-Code scannen</h2>
+      <p>Kamera, Bild-Upload oder manuelle Eingabe verwenden.</p>
+    </a>
+    <a class="feature-card feature-mint" href="{{ url_for('depot') }}">
+      <span class="feature-icon">▤</span>
+      <h2>Bibliotheksdepot</h2>
+      <p>Bestand, Ausleihen und Rückgaben verwalten.</p>
+    </a>
+    <a class="feature-card feature-peach" href="{{ url_for('gallery') }}">
+      <span class="feature-icon">▧</span>
+      <h2>QR-Code-Galerie</h2>
+      <p>Erstellte Codes ansehen und herunterladen.</p>
+    </a>
+  </section>
+{% endif %}
+{% endblock %}

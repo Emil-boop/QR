@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}QR-Code-Galerie · QR-Bibliothek{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <p class="eyebrow">Gespeicherte Bilder</p>
+  <h1>QR-Code-Galerie</h1>
+  <p>Codes können einzeln heruntergeladen oder aus der Galerie entfernt werden. Bucheinträge bleiben beim Löschen eines Bildes erhalten.</p>
+</section>
+
+{% if files %}
+  <section class="qr-grid">
+    {% for item in files %}
+      <article class="qr-card">
+        <img src="{{ url_for('qr_file', filename=item.name) }}" alt="QR-Code {{ item.name }}">
+        <h2>{{ item.name }}</h2>
+        <p>Gespeicherter QR-Inhalt: {{ item.content }}</p>
+        <div class="button-row">
+          <a class="button button-secondary" href="{{ url_for('qr_file', filename=item.name) }}" download>Herunterladen</a>
+          <form method="post" action="{{ url_for('delete_qr', filename=item.name) }}" onsubmit="return confirm('Diesen QR-Code wirklich löschen?')">
+            <button class="button button-danger" type="submit">Löschen</button>
+          </form>
+        </div>
+      </article>
+    {% endfor %}
+  </section>
+{% else %}
+  <div class="empty-state">Noch keine QR-Codes erstellt.</div>
+{% endif %}
+{% endblock %}
