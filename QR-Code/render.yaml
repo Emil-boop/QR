@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: qr-bibliothek
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT app:app
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_PATH
+        value: /var/data/bibliothek_neu.db
+      - key: QR_CODE_DIR
+        value: /var/data/erstellte_qr_codes
+    disk:
+      name: qr-bibliothek-data
+      mountPath: /var/data
+      sizeGB: 1

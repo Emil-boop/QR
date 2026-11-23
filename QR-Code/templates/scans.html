@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Scan-Historie · QR-Bibliothek{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <p class="eyebrow">Letzte Erkennungen</p>
+  <h1>Gespeicherte QR-Scans</h1>
+  <p>Die letzten 100 Scans werden angezeigt.</p>
+</section>
+
+{% if selected_scan %}
+  <section class="panel scan-result">
+    <p class="eyebrow">Scan {{ selected_scan["id"] }}</p>
+    <h2>Erkannt: {{ selected_scan["qr_inhalt"] }}</h2>
+    {% if matched_book %}
+      <p><strong>{{ matched_book["titel"] }}</strong> · Exemplar {{ matched_book["id"] }}</p>
+      <p>ISBN: {{ matched_book["isbn"] }} · Regal: {{ matched_book["regalstandort"] or "-" }}</p>
+      <p>Status: {{ "Ausgeliehen" if matched_book["ausgeliehen"] else "Vorhanden" }}</p>
+      {% if matched_book["ausgeliehen"] %}
+        <p>Ausleiher: {{ matched_book["ausleiher"] or "-" }} · Rückgabe: {{ format_date(matched_book["rueckgabedatum"]) }}</p>
+        <form method="post" action="{{ url_for('return_book', book_id=matched_book['id']) }}">
+          <input type="hidden" name="scan_id" value="{{ selected_scan['id'] }}">
+          <button class="button button-secondary" type="submit">Zurückgeben</button>
+        </form>
+      {% else %}
+        <form class="inline-form scan-loan-form" method="post" action="{{ url_for('loan_book', book_id=matched_book['id']) }}">
+          <input type="hidden" name="scan_id" value="{{ selected_scan['id'] }}">
+          <label for="scan-borrower">Ausleiher</label>
+          <input id="scan-borrower" name="ausleiher" maxlength="120" required>
+          <label for="scan-date">Rückgabedatum</label>
+          <input id="scan-date" name="rueckgabedatum" type="date" required>
+          <button class="button button-primary" type="submit">Ausleihen</button>
+        </form>
+      {% endif %}
+    {% else %}
+      <p>Zu diesem Inhalt wurde kein Buchexemplar gefunden.</p>
+    {% endif %}
+  </section>
+{% endif %}
+
+{% if scans %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Scan-ID</th><th>Inhalt</th><th>Titel</th><th>ISBN</th><th>Regal</th><th>Erfasst</th></tr></thead>
+      <tbody>
+        {% for item in scans %}
+          <tr>
+            <td><a href="{{ url_for('scans', scan_id=item['id']) }}">#{{ item["id"] }}</a></td>
+            <td class="break-word">{{ item["qr_inhalt"] }}</td>
+            <td>{{ item["titel"] or "-" }}</td>
+            <td>{{ item["isbn"] or "-" }}</td>
+            <td>{{ item["regalstandort"] or "-" }}</td>
+            <td>{{ item["erfasst_am"] }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="empty-state">Es wurden noch keine QR-Codes gescannt.</div>
+{% endif %}
+{% endblock %}

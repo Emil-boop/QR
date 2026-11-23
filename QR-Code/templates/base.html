@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}QR-Bibliothek{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="{{ url_for('index') }}">
+        <span class="brand-mark">QR</span>
+        <span>Bibliothek</span>
+      </a>
+      <nav class="main-nav" aria-label="Hauptnavigation">
+        <a href="{{ url_for('index') }}">Suche</a>
+        <a href="{{ url_for('create_qr') }}">QR erstellen</a>
+        <a href="{{ url_for('scan') }}">Scannen</a>
+        <a href="{{ url_for('depot') }}">Depot</a>
+        <a href="{{ url_for('gallery') }}">Galerie</a>
+        <a href="{{ url_for('scans') }}">Scan-Historie</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-list" aria-live="polite">
+          {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    QR-Bibliothek · Bücher verwalten und QR-Codes nutzen
+  </footer>
+  <script src="{{ url_for('static', filename='scanner.js') }}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
